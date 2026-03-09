@@ -62,3 +62,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+frontend/context.txt
+backend/context
