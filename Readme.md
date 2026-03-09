@@ -1,6 +1,6 @@
 # ProctoGuard 🛡️
 
-**Enterprise-Grade B2B SaaS Proctoring Platform** _A Full-Stack TypeScript B.Tech Final Year Project_
+**Enterprise-Grade B2B SaaS Proctoring Platform** _A Full-Stack TypeScript  Project_
 
 ProctoGuard is a secure, role-based examination platform designed to facilitate online assessments while actively preventing and tracking suspicious behavior.
 
