@@ -63,5 +63,8 @@ Thumbs.db
 *.sln
 *.sw?
 
+# 10. AI Context & Project Planning Files
 frontend/context.txt
+backend/context.txt
 backend/context
+*.txt
