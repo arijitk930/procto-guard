@@ -63,4 +63,4 @@ ProctoGuard is a secure, role-based examination platform designed to facilitate 
 
 ---
 
-_Currently in active development (Day 2 of 14)._
+_Currently in active development._
