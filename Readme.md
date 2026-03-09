@@ -36,38 +36,31 @@ ProctoGuard is a secure, role-based examination platform designed to facilitate 
 
 ## 📂 Monorepo Structure
 
-\`\`\`text
-procto-guard/
-├── backend/ # Express API, MongoDB Models, JWT Auth, Controllers
-├── frontend/ # Next.js App Router, Shadcn UI components, API Hooks
-└── README.md
-\`\`\`
+    procto-guard/
+    ├── backend/       # Express API, MongoDB Models, JWT Auth, Controllers
+    ├── frontend/      # Next.js App Router, Shadcn UI components, API Hooks
+    └── README.md
 
 ## 🛠️ Local Development Setup
 
 **1. Clone the repository**
-\`\`\`bash
-git clone https://github.com/yourusername/procto-guard.git
-cd procto-guard
-\`\`\`
+
+    git clone https://github.com/yourusername/procto-guard.git
+    cd procto-guard
 
 **2. Backend Setup**
-\`\`\`bash
-cd backend
-npm install
 
-# Create a .env file with PORT, MONGODB_URI, ACCESS_TOKEN_SECRET, etc.
-
-npm run dev
-\`\`\`
+    cd backend
+    npm install
+    # Create a .env file with PORT, MONGODB_URI, ACCESS_TOKEN_SECRET, etc.
+    npm run dev
 
 **3. Frontend Setup**
-\`\`\`bash
-cd ../frontend
-npm install
-npm run dev
-\`\`\`
+
+    cd ../frontend
+    npm install
+    npm run dev
 
 ---
 
-_Currently in active development._
+_Currently in active development (Day 2 of 14)._
