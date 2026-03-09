@@ -7,7 +7,7 @@ node_modules/
 frontend/node_modules/
 backend/node_modules/
 
-# 2. Environment Variables (SECURITY: Never commit these!)
+# 2. Environment Variables 
 .env
 .env.local
 .env.development.local
@@ -54,7 +54,7 @@ backend/coverage/
 ehthumbs.db
 Thumbs.db
 
-# 9. Editor/IDE Configs (Keeps your teammates' VS Code settings out)
+# 9. Editor/IDE Configs 
 .vscode/
 .idea/
 *.suo
