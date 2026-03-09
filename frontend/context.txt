@@ -1,0 +1,58 @@
+Project Overview:
+ProctoGuard is an enterprise-grade B2B SaaS proctoring platform. This document outlines the frontend architecture, which is designed to be highly modular, maintainable, and strictly typed to integrate seamlessly with the Node.js/Express backend.
+
+Core Tech Stack & Versions:
+
+Framework: Next.js 16.1.6 (App Router)
+
+React Engine: React 19.2.3
+
+Language: TypeScript 5.x (Strict Mode enabled)
+
+UI & Styling: Tailwind CSS v4 + Shadcn UI (Radix Base, Vega Preset, Slate CSS Variables)
+
+Form Management: React Hook Form v7.71 + Zod v4.3.6 (Strict schema validation)
+
+Data Fetching: Axios v1.13 + TanStack React Query v5.90 (Caching, loading states, retries)
+
+Global State: Zustand v5.0 (Lightweight client state)
+
+Linting: ESLint (Husky/Lint-staged omitted for solo iteration speed)
+
+Architectural Philosophy & Rules:
+
+High Modularity: UI components must remain "dumb" (presentation only). All business logic, API calls, and state management must be abstracted into dedicated hooks, store files, or API utility files.
+
+Strict Type Safety: Interfaces and types must be defined for all API responses, component props, and global states to ensure end-to-end type safety from the DB to the UI.
+
+Authentication Handling: Axios must be strictly configured to pass withCredentials: true to handle the secure httpOnly Access and Refresh tokens issued by the backend.
+
+Client vs. Server Components: Leverage Next.js Server Components by default for performance, only using "use client" directives at the leaf nodes (where interactivity, hooks, or browser APIs are required).
+
+Industry-Standard Folder Structure:
+
+src/app/: Next.js App Router (Pages, Layouts, standard routing). Grouped by (auth), (dashboard), and dynamic routes like exam/[id].
+
+src/components/ui/: Auto-generated Shadcn UI building blocks.
+
+src/components/forms/: Complex interactive forms bound to Zod schemas.
+
+src/components/shared/: Reusable layouts, navbars, and loaders.
+
+src/lib/: Core utilities (e.g., axios.ts client setup, utils.ts for Tailwind).
+
+src/api/: All external API request functions grouped by feature (auth.api.ts, exam.api.ts).
+
+src/hooks/: Custom React hooks (useAuth, useProctoring) and React Query wrappers.
+
+src/store/: Zustand global state slices (userStore.ts).
+
+src/types/: Shared TypeScript interfaces and DTOs matching backend models.
+
+Current Implementation State:
+
+Phase: Day 3 - Environment initialized.
+
+Status: Boilerplate created, package.json dependencies locked, Shadcn UI Radix/Vega preset configured.
+
+Next Immediate Steps: Create the customized Axios client (lib/axios.ts) and build the initial Educator Registration / Login UI flows.

@@ -1,0 +1,60 @@
+ProctoGuard Project Context (Updated)
+Project Overview:
+ProctoGuard is an enterprise-grade B2B SaaS proctoring platform designed to secure online assessments. The stack is a "Full TypeScript" architecture built for high reliability and type safety.
+
+Core Tech Stack:
+
+Backend: Node.js 25.x with Express 5.2.1 (ES Modules).
+
+Database: MongoDB Atlas with Mongoose 9.2.4.
+
+Language: TypeScript 5.9.3 (Strict Mode).
+
+Module System: ES Modules (ESM) using NodeNext resolution (requires .js extensions on local imports).
+
+Authentication: JWT (Access/Refresh Token pattern) and cookie-parser.
+
+Standardized Architecture & Utils:
+
+asyncHandler: Standardized wrapper for Express 5 routes to handle promises and errors cleanly.
+
+ApiError & ApiResponse: Custom classes for consistent, standardized JSON responses.
+
+errorHandler: Global middleware for centralized error management.
+
+verifyJWT Middleware: Custom guard that extracts tokens from cookies/headers, verifies identity via ACCESS_TOKEN_SECRET, and attaches the sanitized user object to req.user.
+
+generateInviteCode: Crypto-based utility to create unique 6-character hex/alphanumeric codes for exam access.
+
+Implementation Progress (User & Auth Engine):
+
+Registration & Login: Auto-login logic, Bcrypt password hashing, and role-based access control (Educator vs. Student).
+
+Token & Session Management: Short-lived access tokens, long-lived refresh tokens (stored in DB and rotated), secure/httpOnly cookies, and secure logout logic.
+
+Account Security: Secure changeCurrentPassword logic.
+
+Implementation Progress (Exam Engine):
+
+Exam Schema: Stores exam metadata (timeLimit, passingScore) and embedded questions arrays with associated marks.
+
+Educator Workflow: Routes to create exams (createExam) and fetch educator-specific dashboards (getAllExamsByEducator, getExamDetails). Links exams to the creator's ObjectId.
+
+Student Join Logic: joinExam controller allows students to access an exam using the 6-character inviteCode.
+
+Data Masking: Server-side security strips the correctAnswer field from the payload before sending it to the student client, preventing network-tab cheating.
+
+Implementation Progress (Attempt & Proctoring Engine):
+
+Attempt Schema: Tracks examId, studentId, real-time answers, score, startTime/endTime (in UTC), and proctoring telemetry (tabSwitchCount, status).
+
+Session Management: startAttempt locks the student into an active session and actively prevents duplicate attempts.
+
+Real-Time State: saveAnswer uses PATCH to securely auto-save individual question responses to the database during the exam to prevent data loss.
+
+Auto-Grading: submitAttempt calculates the final score on the server by cross-referencing the student's attempt array with the original exam's hidden answer key, then locks the status to "submitted".
+
+Telemetry (Anti-Cheat): updateTelemetry endpoint designed to be triggered by frontend visibilitychange events. Tracks off-tab behavior and automatically updates the attempt status to "flagged" after 3 warnings, blocking further answer submissions.
+
+Current State:
+The complete Backend MVP is fully functional and tested via Postman. The server is listening on Port 8000 with versioned routing (/api/v1/users, /api/v1/exams, /api/v1/attempts). The API is now ready for frontend integration.
