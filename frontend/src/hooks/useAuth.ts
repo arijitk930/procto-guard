@@ -19,7 +19,9 @@ export const useAuth = () => {
       queryFn: async () => {
         try {
           const response = await authApi.getCurrentUser();
-          const user = response?.data?.user;
+          // getCurrentUser returns the user object directly as response.data
+          // while login returns it as response.data.user
+          const user = response?.data?.user || response?.data;
           if (user) {
             setUser(user);
             return user;

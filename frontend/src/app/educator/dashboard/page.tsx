@@ -6,6 +6,8 @@ import { RecentActivityTable } from "@/components/dashboard/RecentActivityTable"
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
+import Link from "next/link";
+
 export default function EducatorDashboard() {
   const { user } = useAuth();
 
@@ -25,10 +27,12 @@ export default function EducatorDashboard() {
             . Here is your overview for today.
           </p>
         </div>
-        <Button className="font-semibold text-md gap-3 py-6 px-7 bg-blue-600 hover:bg-blue-700 transition-colors">
-          <PlusCircle size={22} />
-          Create New Exam
-        </Button>
+        <Link href="/educator/dashboard/exams/create">
+          <Button className="font-semibold text-md gap-3 py-6 px-7 bg-blue-600 hover:bg-blue-700 transition-colors">
+            <PlusCircle size={22} />
+            Create New Exam
+          </Button>
+        </Link>
       </header>
 
       {/* 2. Key Metrics */}

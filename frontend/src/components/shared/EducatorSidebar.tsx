@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,12 @@ const navItems = [
 export function EducatorSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    setMounted(true);
+  }, []);
 
   return (
     <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r dark:border-slate-800 p-6 flex flex-col justify-between max-lg:hidden">
@@ -76,22 +83,28 @@ export function EducatorSidebar() {
       <div className="border-t dark:border-slate-800 pt-6 mt-6">
         <div className="flex items-center gap-4 mb-5">
           <Avatar className="h-12 w-12 border-2 border-slate-100 dark:border-slate-800">
-            <AvatarImage
-              src={`https://api.dicebear.com/8.x/initials/svg?seed=${user?.username}`}
-            />
+            {mounted && user?.username ? (
+              <AvatarImage
+                src={`https://api.dicebear.com/8.x/initials/svg?seed=${user.username}`}
+              />
+            ) : null}
             <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">
-              {user?.fullName
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("") || "ED"}
+              {mounted && user?.fullName
+                ? user.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()
+                : "ED"}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-semibold text-lg">
-              {user?.fullName || "Educator"}
+          <div className="flex-1 overflow-hidden">
+            <p className="font-semibold text-lg truncate flex items-center gap-2">
+              {mounted && user?.fullName ? user.fullName : "Educator"}
             </p>
-            <p className="text-sm text-muted-foreground">
-              {user?.email || "loading..."}
+            <p className="text-sm text-muted-foreground w-full truncate">
+              {mounted && user?.email ? user.email : "loading..."}
             </p>
           </div>
         </div>
