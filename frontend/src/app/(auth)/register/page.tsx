@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/PasswordInput";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -74,7 +75,7 @@ export default function RegisterPage() {
               <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
-                placeholder="Arijit Karmakar"
+                placeholder="Enter your full name"
                 {...registerField("fullName")}
               />
               {errors.fullName && (
@@ -90,7 +91,7 @@ export default function RegisterPage() {
                 <Label htmlFor="username">Username</Label>
                 <Input
                   id="username"
-                  placeholder="arijit_dev"
+                  placeholder="Enter your username"
                   {...registerField("username")}
                 />
                 {errors.username && (
@@ -106,7 +107,7 @@ export default function RegisterPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@college.edu"
+                  placeholder="Enter your email"
                   {...registerField("email")}
                 />
                 {errors.email && (
@@ -146,9 +147,8 @@ export default function RegisterPage() {
             {/* Password */}
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 {...registerField("password")}
               />
@@ -162,9 +162,8 @@ export default function RegisterPage() {
             {/* Confirm Password */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 placeholder="••••••••"
                 {...registerField("confirmPassword")}
               />

@@ -1,46 +1,46 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
+import { KPICards } from "@/components/dashboard/KPICards";
+import { RecentActivityTable } from "@/components/dashboard/RecentActivityTable";
 import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 export default function EducatorDashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50 dark:bg-slate-950">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <header className="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Educator Dashboard
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Welcome back, {user?.fullName || "Educator"}
-            </p>
-          </div>
-          <Button variant="outline" onClick={() => logout()}>
-            Log out
-          </Button>
-        </header>
-
-        {/* Placeholder for future features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-lg">Active Exams</h3>
-            <p className="text-3xl font-bold mt-2">0</p>
-          </div>
-          <div className="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-lg">Total Students</h3>
-            <p className="text-3xl font-bold mt-2">0</p>
-          </div>
-          <div className="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border">
-            <h3 className="font-semibold text-lg">System Status</h3>
-            <p className="text-green-600 font-bold mt-2">
-              All Systems Operational
-            </p>
-          </div>
+    <div className="space-y-10">
+      {/* 1. Header Section */}
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-2">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight">
+            Educator Dashboard
+          </h1>
+          <p className="text-xl text-muted-foreground mt-2">
+            Welcome back,{" "}
+            <span className="font-semibold text-slate-900 dark:text-white">
+              {user?.fullName || "Educator"}
+            </span>
+            . Here is your overview for today.
+          </p>
         </div>
-      </div>
+        <Button className="font-semibold text-md gap-3 py-6 px-7 bg-blue-600 hover:bg-blue-700 transition-colors">
+          <PlusCircle size={22} />
+          Create New Exam
+        </Button>
+      </header>
+
+      {/* 2. Key Metrics */}
+      <section>
+        <KPICards />
+      </section>
+
+      {/* 3. Main Data Area */}
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <RecentActivityTable />
+        {/* We can place the "Top Violated Students" or "System Logs" here later */}
+      </section>
     </div>
   );
 }

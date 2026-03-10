@@ -2,9 +2,10 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/shared/LogoutButton";
 
 export default function StudentDashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen p-8 bg-slate-50 dark:bg-slate-950">
@@ -18,9 +19,7 @@ export default function StudentDashboard() {
               Welcome, {user?.fullName || "Student"}
             </p>
           </div>
-          <Button variant="outline" onClick={() => logout()}>
-            Log out
-          </Button>
+          <LogoutButton />
         </header>
 
         <div className="p-6 bg-white dark:bg-slate-900 rounded-lg shadow-sm border flex flex-col items-center justify-center text-center py-12">
