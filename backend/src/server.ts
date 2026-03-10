@@ -31,11 +31,13 @@ app.get("/", (req, res) => {
 });
 
 //routes import
+import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/user.routes.js";
 import examRouter from "./routes/exam.routes.js";
 import attemptRouter from "./routes/attempt.routes.js";
 
 //routes declaration
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/exams", examRouter);
 app.use("/api/v1/attempts", attemptRouter);
