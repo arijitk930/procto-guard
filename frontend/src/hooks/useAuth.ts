@@ -6,7 +6,7 @@ import { RegisterInput, LoginInput } from "../lib/validations/auth";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
-  const { setUser, clearUser } = useUserStore();
+  const { user, setUser, clearUser } = useUserStore();
 
   // 1. Initial Load: Check if user is already logged in (via HTTP-only cookie)
   const useInitAuth = () => {
@@ -55,6 +55,7 @@ export const useAuth = () => {
   });
 
   return {
+    user,
     useInitAuth,
     login: loginMutation.mutateAsync,
     register: registerMutation.mutateAsync,

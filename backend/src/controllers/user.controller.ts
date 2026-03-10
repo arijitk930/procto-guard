@@ -25,19 +25,25 @@ const generateAccessAndRefereshTokens = async (userId: string) => {
     throw new ApiError(500, "Something went wrong while generating tokens");
   }
 };
-
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
-  // 1. Get data from frontend
+  // 1. Get data from frontend (now explicitly requiring role)
   const { fullName, email, username, password, role } = req.body;
 
-  // 2. Validation - check if any field is empty
+  // 2. Validation - check if ANY field is empty (added role to the array)
   if (
-    [fullName, email, username, password].some((field) => field?.trim() === "")
+    [fullName, email, username, password, role].some(
+      (field) => field?.trim() === "",
+    )
   ) {
     throw new ApiError(400, "All fields are required");
   }
 
-  // 3. Check if user already exists (email or username)
+  // 2b. Strict Role Validation
+  if (!["student", "educator"].includes(role)) {
+    throw new ApiError(400, "Invalid role. Must be 'student' or 'educator'");
+  }
+
+  // 3. Check if user already exists
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
@@ -46,13 +52,13 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(409, "User with email or username already exists");
   }
 
-  // 4. Create user object - create entry in DB
+  // 4. Create user object
   const user = await User.create({
     fullName,
     email,
     username: username.toLowerCase(),
     password,
-    role: role || "student",
+    role, // No longer defaulting to student, taking the exact role from the frontend
   });
 
   // 5. Remove password and refresh token field from response
@@ -74,7 +80,6 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
   };
 
   // 6. Return response
-
   return res
     .status(201)
     .cookie("accessToken", accessToken, options)
@@ -89,12 +94,12 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
-  // 1. Get only email and password from req.body
-  const { email, password } = req.body;
+  // 1. Get email, password, AND role from req.body
+  const { email, password, role } = req.body;
 
-  // 2. Validation: Ensure both fields are present
-  if (!email || !password) {
-    throw new ApiError(400, "Email and password are required");
+  // 2. Validation: Ensure all fields are present
+  if (!email || !password || !role) {
+    throw new ApiError(400, "Email, password, and role are required");
   }
 
   // 3. Find the user by email
@@ -104,6 +109,16 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(404, "User with this email does not exist");
   }
 
+  // --- NEW SECURITY CHECK: Verify the Role ---
+  if (user.role !== role) {
+    // 403 Forbidden is perfect here. They exist, but are trying to access the wrong portal.
+    throw new ApiError(
+      403,
+      `Access denied. This email is registered as a ${user.role}.`,
+    );
+  }
+  // -------------------------------------------
+
   // 4. Verify Password using the model method
   const isPasswordValid = await user.isPasswordCorrect(password);
 
@@ -111,7 +126,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  // 5. Generate tokens using your string-fixed helper
+  // 5. Generate tokens
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
     user._id.toString(),
   );

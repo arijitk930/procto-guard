@@ -3,34 +3,34 @@ import { apiClient } from "../lib/axios";
 import { ApiResponse } from "../types/api.types";
 import { RegisterInput, LoginInput } from "../lib/validations/auth";
 
-// Define what the user object looks like when it comes back from the backend
+// 1. Updated to match your exact Mongoose Schema
 export interface User {
   _id: string;
-  name: string;
+  fullName: string;
+  username: string;
   email: string;
   role: "educator" | "student";
-  institution?: string;
 }
 
-// Group all authentication-related API calls into one clean object
 export const authApi = {
   register: async (
     data: RegisterInput,
   ): Promise<ApiResponse<{ user: User }>> => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // We strip out confirmPassword, but keep fullName, username, email, password, AND role
     const { confirmPassword, ...payload } = data;
-    return apiClient.post("/auth/register", payload); // Points to auth.routes.js
+    return apiClient.post("/auth/register", payload);
   },
 
   login: async (data: LoginInput): Promise<ApiResponse<{ user: User }>> => {
-    return apiClient.post("/auth/login", data); // Points to auth.routes.js
+    // Data now naturally includes email, password, AND role from the login form
+    return apiClient.post("/auth/login", data);
   },
 
   logout: async (): Promise<ApiResponse<null>> => {
-    return apiClient.post("/auth/logout"); // Points to auth.routes.js
+    return apiClient.post("/auth/logout");
   },
 
   getCurrentUser: async (): Promise<ApiResponse<{ user: User }>> => {
-    return apiClient.get("/users/current-user"); // Points to user.routes.js
+    return apiClient.get("/users/current-user");
   },
 };
