@@ -12,6 +12,8 @@ export interface IAttempt extends Document {
   tabSwitchCount: number; // For proctoring
   startTime: Date;
   endTime?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const attemptSchema = new Schema<IAttempt>(

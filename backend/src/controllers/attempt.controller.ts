@@ -15,17 +15,48 @@ const startAttempt = asyncHandler(async (req: AuthRequest, res: Response) => {
     throw new ApiError(404, "Exam not found");
   }
 
-  // 2. Prevent multiple attempts (Basic logic)
+  // 2. Handle existing attempts (The Resume Logic & Time Check)
   const existingAttempt = await Attempt.findOne({
     examId,
     studentId: req.user?._id,
   });
 
   if (existingAttempt) {
-    throw new ApiError(400, "You have already started or completed this exam");
+    if (existingAttempt.status === "started") {
+      // --- NEW STRICT TIME CHECK ---
+      const attemptStartTime = new Date(existingAttempt.createdAt).getTime();
+      const currentTime = new Date().getTime();
+      const elapsedMinutes = (currentTime - attemptStartTime) / (1000 * 60);
+
+      // If they exceeded the time limit (plus a tiny 1-minute grace period for loading)
+      if (elapsedMinutes > exam.timeLimit + 1) {
+        // Auto-close the exam in the database
+        existingAttempt.status = "submitted";
+        existingAttempt.endTime = new Date();
+        await existingAttempt.save();
+
+        throw new ApiError(
+          400,
+          "Exam time has expired. Your session has been locked.",
+        );
+      }
+
+      // If they are still within the time limit, let them resume
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(200, existingAttempt, "Resuming your exam session"),
+        );
+    }
+
+    // If they already submitted or got flagged, block them
+    throw new ApiError(
+      400,
+      "You have already completed or been locked out of this exam",
+    );
   }
 
-  // 3. Initialize the attempt
+  // 3. Initialize a new attempt
   const attempt = await Attempt.create({
     examId,
     studentId: req.user?._id,
