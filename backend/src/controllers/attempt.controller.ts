@@ -72,39 +72,54 @@ const saveAnswer = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { attemptId } = req.params;
   const { questionId, selectedOption } = req.body;
 
-  // 1. Validate input
   if (!questionId || !selectedOption) {
     throw new ApiError(400, "Question ID and selected option are required");
   }
 
-  // 2. Find the attempt and verify ownership
   const attempt = await Attempt.findOne({
     _id: attemptId,
     studentId: req.user?._id,
   });
 
-  if (!attempt) {
-    throw new ApiError(404, "Attempt not found");
-  }
+  if (!attempt) throw new ApiError(404, "Attempt not found");
 
-  // 3. Ensure the exam is still active
-  if (attempt.status !== "started") {
+  // 1. Block if it's completely submitted
+  if (attempt.status === "submitted") {
     throw new ApiError(
       400,
-      "Cannot save answers. This attempt is already submitted or flagged.",
+      "Cannot save answers. This exam is already submitted.",
     );
   }
 
-  // 4. Update or Add the answer
+  // 2. NEW: Fetch Exam and enforce the strict Time Check
+  const exam = await Exam.findById(attempt.examId);
+  if (!exam) throw new ApiError(404, "Associated exam not found");
+
+  const rawCreatedAt = attempt.get("createdAt");
+  const attemptStartTime = new Date(rawCreatedAt).getTime();
+  const currentTime = new Date().getTime();
+  const elapsedMinutes = (currentTime - attemptStartTime) / (1000 * 60);
+
+  if (elapsedMinutes > exam.timeLimit + 1) {
+    // If they ran out of time, lock the exam down permanently
+    attempt.status = attempt.status === "flagged" ? "flagged" : "submitted";
+    attempt.endTime = new Date();
+    await attempt.save();
+
+    throw new ApiError(
+      400,
+      "Time has expired! No further answers can be saved.",
+    );
+  }
+
+  // 3. Update or Add the answer
   const existingAnswerIndex = attempt.answers.findIndex(
     (ans) => ans.questionId === questionId,
   );
 
   if (existingAnswerIndex !== -1) {
-    // If they already answered this question, update their choice
     attempt.answers[existingAnswerIndex].selectedOption = selectedOption;
   } else {
-    // If it's a new question, add it to the array
     attempt.answers.push({ questionId, selectedOption });
   }
 
@@ -118,50 +133,43 @@ const saveAnswer = asyncHandler(async (req: AuthRequest, res: Response) => {
 const submitAttempt = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { attemptId } = req.params;
 
-  // 1. Find the Attempt
   const attempt = await Attempt.findOne({
     _id: attemptId,
     studentId: req.user?._id,
   });
 
-  if (!attempt) {
-    throw new ApiError(404, "Attempt not found");
-  }
+  if (!attempt) throw new ApiError(404, "Attempt not found");
 
-  // Prevent double-submissions
-  if (attempt.status !== "started") {
+  // 1. Prevent double-submissions, but ALLOW "flagged" cheaters to submit
+  if (attempt.status === "submitted") {
     throw new ApiError(400, "This exam has already been submitted");
   }
 
-  // 2. Fetch the original Exam to get the answer key
   const exam = await Exam.findById(attempt.examId);
-  if (!exam) {
-    throw new ApiError(404, "Associated exam not found");
-  }
+  if (!exam) throw new ApiError(404, "Associated exam not found");
 
-  // 3. The Auto-Grader Logic
+  // 2. The Auto-Grader Logic
   let calculatedScore = 0;
 
-  // Loop through every answer the student saved
   attempt.answers.forEach((studentAnswer) => {
-    // Find the matching question in the exam
     const actualQuestion = exam.questions.find(
       (q) => q._id?.toString() === studentAnswer.questionId.toString(),
     );
 
-    // If the question exists and the answer matches exactly
     if (
       actualQuestion &&
       actualQuestion.correctAnswer === studentAnswer.selectedOption
     ) {
-      calculatedScore += actualQuestion.marks; // Add the specific marks for this question
+      calculatedScore += actualQuestion.marks;
     }
   });
 
-  // 4. Finalize the Attempt
+  // 3. Finalize the Attempt
   attempt.score = calculatedScore;
-  attempt.status = "submitted";
-  attempt.endTime = new Date(); // Logs exactly when they finished
+
+  // CRITICAL: If they were flagged, keep them flagged! Otherwise, mark submitted.
+  attempt.status = attempt.status === "flagged" ? "flagged" : "submitted";
+  attempt.endTime = new Date();
 
   await attempt.save();
 
@@ -170,7 +178,7 @@ const submitAttempt = asyncHandler(async (req: AuthRequest, res: Response) => {
     .json(
       new ApiResponse(
         200,
-        attempt,
+        { score: calculatedScore, status: attempt.status },
         `Exam submitted! Your score: ${calculatedScore}`,
       ),
     );
